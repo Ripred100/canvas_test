@@ -1,9 +1,11 @@
+use amber_light::ember::{self, Fireplace};
 use canvas::digital_canvas::*;
 use nannou::prelude::*;
 use nannou_egui::{self, Egui};
 
 struct Model {
     my_canvas: DigitalCanvas,
+    fireplace: Fireplace,
     egui: Egui,
 }
 
@@ -13,9 +15,18 @@ fn main() {
 
 fn update(_app: &App, model: &mut Model, update: Update) {
     println!("{:?}", update);
-    for column in &mut model.my_canvas.pixels.iter_mut() {
-        for pixel in &mut column.iter_mut() {
-            pixel.cycle();
+    model.fireplace.update_embers();
+    model.fireplace.find_heatmap();
+    for (j, column) in &mut model.my_canvas.pixels.iter_mut().enumerate() {
+        for (i, pixel) in &mut column.iter_mut().enumerate() {
+            let color = model
+                .fireplace
+                .settings
+                .g
+                .at(model.fireplace.heatmap[i][j] as f64)
+                .to_rgba8();
+            pixel.set_rgb((color[0], color[1], color[2]));
+            //pixel.cycle();
         }
     }
 }
@@ -32,10 +43,13 @@ fn model(app: &App) -> Model {
 
     let egui = Egui::from_window(&window);
 
-    Model {
+    let mut model = Model {
         egui,
         my_canvas: DigitalCanvas::new(),
-    }
+        fireplace: Fireplace::new(),
+    };
+    model.fireplace.find_heatmap();
+    return model;
 }
 
 fn raw_window_event(_app: &App, model: &mut Model, event: &nannou::winit::event::WindowEvent) {

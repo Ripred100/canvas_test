@@ -6,25 +6,23 @@ use nannou_egui::{self, Egui};
 struct Model {
     my_canvas: DigitalCanvas,
     fireplace: Fireplace,
-    egui: Egui,
 }
 
 fn main() {
-    nannou::app(model).update(update).run();
+    nannou::app(model)
+        .update(update)
+        .loop_mode(LoopMode::RefreshSync)
+        .run();
 }
 
 fn update(_app: &App, model: &mut Model, update: Update) {
-    println!("{:?}", update);
+    println!("{:?}", model.fireplace.heatmap);
     model.fireplace.update_embers();
     model.fireplace.find_heatmap();
+    let g = &model.fireplace.settings.g;
     for (j, column) in &mut model.my_canvas.pixels.iter_mut().enumerate() {
         for (i, pixel) in &mut column.iter_mut().enumerate() {
-            let color = model
-                .fireplace
-                .settings
-                .g
-                .at(model.fireplace.heatmap[i][j] as f64)
-                .to_rgba8();
+            let color = g.at(model.fireplace.heatmap[i][j] as f64).to_rgba8();
             pixel.set_rgb((color[0], color[1], color[2]));
             //pixel.cycle();
         }
@@ -33,18 +31,23 @@ fn update(_app: &App, model: &mut Model, update: Update) {
 
 fn model(app: &App) -> Model {
     // Create window
-    let window_id = app
+    let _window = app
         .new_window()
+        .title(app.exe_name().unwrap())
         .view(view)
-        .raw_event(raw_window_event)
         .build()
         .unwrap();
-    let window = app.window(window_id).unwrap();
+    // let window_id = app
+    //     .new_window()
+    //     .view(view)
+    //     .raw_event(raw_window_event)
+    //     .build()
+    //     .unwrap();
+    // let window = app.window(window_id).unwrap();
 
-    let egui = Egui::from_window(&window);
+    //let egui = Egui::from_window(&window);
 
     let mut model = Model {
-        egui,
         my_canvas: DigitalCanvas::new(),
         fireplace: Fireplace::new(),
     };
@@ -52,13 +55,14 @@ fn model(app: &App) -> Model {
     return model;
 }
 
-fn raw_window_event(_app: &App, model: &mut Model, event: &nannou::winit::event::WindowEvent) {
+fn _raw_window_event(_app: &App, model: &mut Model, event: &nannou::winit::event::WindowEvent) {
     // Let egui handle things like keyboard and mouse input.
-    model.egui.handle_raw_event(event);
+    //model.egui.handle_raw_event(event);
 }
 
 fn view(app: &App, model: &Model, frame: Frame) {
     // Begin drawing
+    assert_ne!(model.fireplace.heatmap, [[0.0; 10]; 10]);
     let draw = app.draw();
 
     // Clear the background to blue.
@@ -78,7 +82,7 @@ fn view(app: &App, model: &Model, frame: Frame) {
                 .w(x_y_offset[0])
                 .h(x_y_offset[1])
                 .rgb8(pixel.red, pixel.green, pixel.blue);
-            draw.to_frame(app, &frame).unwrap();
+            //draw.to_frame(app, &frame).unwrap();
             //pixel.cycle();
         }
     }

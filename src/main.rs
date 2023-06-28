@@ -1,9 +1,11 @@
 use amber_light::ember::{self, Fireplace};
 use canvas::digital_canvas::*;
 use nannou::prelude::*;
+use nannou_conrod::prelude::*;
 use nannou_egui::{self, Egui};
 
 struct Model {
+    main_window: WindowId,
     my_canvas: DigitalCanvas,
     fireplace: Fireplace,
 }
@@ -16,7 +18,7 @@ fn main() {
 }
 
 fn update(_app: &App, model: &mut Model, update: Update) {
-    println!("{:?}", model.fireplace.heatmap);
+    println!("{:?}", model.fireplace.settings.sigma);
     model.fireplace.update_embers();
     model.fireplace.find_heatmap();
     let g = &model.fireplace.settings.g;
@@ -31,12 +33,24 @@ fn update(_app: &App, model: &mut Model, update: Update) {
 
 fn model(app: &App) -> Model {
     // Create window
-    let _window = app
+    let window = app
         .new_window()
         .title(app.exe_name().unwrap())
+        .size(1000, 800)
         .view(view)
+        .raw_event(raw_window_event)
+        .key_pressed(key_pressed)
         .build()
         .unwrap();
+    // let ui_window = app
+    //     .new_window()
+    //     .title(app.exe_name().unwrap() + " controls")
+    //     .size(300, 200)
+    //     .view(ui_view)
+    //     .raw_event(raw_ui_event)
+    //     .key_pressed(key_pressed)
+    //     .build()
+    //     .unwrap();
     // let window_id = app
     //     .new_window()
     //     .view(view)
@@ -48,6 +62,7 @@ fn model(app: &App) -> Model {
     //let egui = Egui::from_window(&window);
 
     let mut model = Model {
+        main_window: window,
         my_canvas: DigitalCanvas::new(),
         fireplace: Fireplace::new(),
     };
@@ -55,14 +70,27 @@ fn model(app: &App) -> Model {
     return model;
 }
 
-fn _raw_window_event(_app: &App, model: &mut Model, event: &nannou::winit::event::WindowEvent) {
+fn raw_window_event(_app: &App, model: &mut Model, event: &nannou::winit::event::WindowEvent) {
     // Let egui handle things like keyboard and mouse input.
     //model.egui.handle_raw_event(event);
 }
 
+fn raw_ui_event(_app: &App, _model: &mut Model, _event: &nannou_conrod::RawWindowEvent) {}
+
+fn key_pressed(app: &App, model: &mut Model, key: Key) {
+    match key {
+        Key::E => model.fireplace.settings.sigma = model.fireplace.settings.sigma + 0.1,
+        Key::Q => model.fireplace.settings.sigma = model.fireplace.settings.sigma - 0.1,
+
+        _other_key => {}
+    }
+}
+
+fn ui_view(app: &App, model: &Model, frame: Frame) {}
+
 fn view(app: &App, model: &Model, frame: Frame) {
     // Begin drawing
-    assert_ne!(model.fireplace.heatmap, [[0.0; 10]; 10]);
+    //assert_ne!(model.fireplace.heatmap, [[0.0; 10]; 10]);
     let draw = app.draw();
 
     // Clear the background to blue.

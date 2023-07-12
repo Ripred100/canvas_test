@@ -1,6 +1,7 @@
 use amber_light::ember::{Fireplace, FireplaceState};
 use canvas::digital_canvas::*;
 use nannou::prelude::*;
+use std::time;
 //use nannou_conrod::prelude::*;
 //use nannou_egui;
 
@@ -17,7 +18,10 @@ fn main() {
         .run();
 }
 
-fn update(_app: &App, model: &mut Model, _update: Update) {
+fn update(_app: &App, model: &mut Model, update: Update) {
+    if update.since_last < time::Duration::from_millis(14) {
+        return;
+    }
     //println!("{:?}", model.fireplace.settings.sigma);
     //model.fireplace.update_embers();
     //model.fireplace.find_heatmap();

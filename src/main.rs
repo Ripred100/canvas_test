@@ -18,9 +18,10 @@ fn main() {
 }
 
 fn update(_app: &App, model: &mut Model, _update: Update) {
-    println!("{:?}", model.fireplace.settings.sigma);
-    model.fireplace.update_embers();
-    model.fireplace.find_heatmap();
+    //println!("{:?}", model.fireplace.settings.sigma);
+    //model.fireplace.update_embers();
+    //model.fireplace.find_heatmap();
+    model.fireplace.step();
     let g = &model.fireplace.settings.g;
     for (j, column) in &mut model.my_canvas.pixels.iter_mut().enumerate() {
         for (i, pixel) in &mut column.iter_mut().enumerate() {
@@ -79,8 +80,16 @@ fn _raw_ui_event(_app: &App, _model: &mut Model, _event: &nannou_conrod::RawWind
 
 fn key_pressed(_app: &App, model: &mut Model, key: Key) {
     match key {
-        Key::E => model.fireplace.settings.sigma = model.fireplace.settings.sigma + 0.1,
-        Key::Q => model.fireplace.settings.sigma = model.fireplace.settings.sigma - 0.1,
+        Key::E => {
+            model.fireplace.settings.ember_settings.sigma =
+                model.fireplace.settings.ember_settings.sigma + 0.1
+        }
+        Key::Q => {
+            model.fireplace.settings.ember_settings.sigma =
+                model.fireplace.settings.ember_settings.sigma - 0.1
+        }
+        Key::S => model.fireplace.off(),
+        Key::W => model.fireplace.start(),
 
         _other_key => {}
     }

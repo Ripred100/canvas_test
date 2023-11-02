@@ -1,11 +1,11 @@
-use amber_light::ember::{Fireplace, FireplaceState};
+use amber_light::ember::{self, Fireplace};
 use canvas::digital_canvas::*;
 use nannou::prelude::*;
-//use nannou_conrod::prelude::*;
-//use nannou_egui;
+use nannou_conrod::prelude::*;
+use nannou_egui::{self, Egui};
 
 struct Model {
-    _main_window: WindowId,
+    main_window: WindowId,
     my_canvas: DigitalCanvas,
     fireplace: Fireplace,
 }
@@ -17,8 +17,8 @@ fn main() {
         .run();
 }
 
-fn update(_app: &App, model: &mut Model, _update: Update) {
-    println!("{:?}", model.fireplace.settings.ember_settings.sigma);
+fn update(_app: &App, model: &mut Model, update: Update) {
+    println!("{:?}", model.fireplace.settings.sigma);
     model.fireplace.update_embers();
     model.fireplace.find_heatmap();
     let g = &model.fireplace.settings.g;
@@ -62,7 +62,7 @@ fn model(app: &App) -> Model {
     //let egui = Egui::from_window(&window);
 
     let mut model = Model {
-        _main_window: window,
+        main_window: window,
         my_canvas: DigitalCanvas::new(),
         fireplace: Fireplace::new(),
     };
@@ -70,14 +70,14 @@ fn model(app: &App) -> Model {
     return model;
 }
 
-fn raw_window_event(_app: &App, _model: &mut Model, _event: &nannou::winit::event::WindowEvent) {
+fn raw_window_event(_app: &App, model: &mut Model, event: &nannou::winit::event::WindowEvent) {
     // Let egui handle things like keyboard and mouse input.
     //model.egui.handle_raw_event(event);
 }
 
-fn _raw_ui_event(_app: &App, _model: &mut Model, _event: &nannou_conrod::RawWindowEvent) {}
+fn raw_ui_event(_app: &App, _model: &mut Model, _event: &nannou_conrod::RawWindowEvent) {}
 
-fn key_pressed(_app: &App, model: &mut Model, key: Key) {
+fn key_pressed(app: &App, model: &mut Model, key: Key) {
     match key {
         Key::E => model.fireplace.settings.ember_settings.sigma = model.fireplace.settings.ember_settings.sigma + 0.1,
         Key::Q => model.fireplace.settings.ember_settings.sigma = model.fireplace.settings.ember_settings.sigma - 0.1,
@@ -86,7 +86,7 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
     }
 }
 
-fn _ui_view(_app: &App, _model: &Model, _frame: Frame) {}
+fn ui_view(app: &App, model: &Model, frame: Frame) {}
 
 fn view(app: &App, model: &Model, frame: Frame) {
     // Begin drawing

@@ -19,9 +19,6 @@ fn main() {
 }
 
 fn update(_app: &App, model: &mut Model, update: Update) {
-    if update.since_last < time::Duration::from_millis(14) {
-        return;
-    }
     //println!("{:?}", model.fireplace.settings.sigma);
     //model.fireplace.update_embers();
     //model.fireplace.find_heatmap();

@@ -1,8 +1,9 @@
 use amber_light::ember::{self, Fireplace};
 use canvas::digital_canvas::*;
 use nannou::prelude::*;
-use nannou_conrod::prelude::*;
-use nannou_egui::{self, Egui};
+use std::time;
+//use nannou_conrod::prelude::*;
+//use nannou_egui;
 
 struct Model {
     main_window: WindowId,
@@ -18,9 +19,13 @@ fn main() {
 }
 
 fn update(_app: &App, model: &mut Model, update: Update) {
-    println!("{:?}", model.fireplace.settings.sigma);
-    model.fireplace.update_embers();
-    model.fireplace.find_heatmap();
+    if update.since_last < time::Duration::from_millis(14) {
+        return;
+    }
+    //println!("{:?}", model.fireplace.settings.sigma);
+    //model.fireplace.update_embers();
+    //model.fireplace.find_heatmap();
+    model.fireplace.step();
     let g = &model.fireplace.settings.g;
     for (j, column) in &mut model.my_canvas.pixels.iter_mut().enumerate() {
         for (i, pixel) in &mut column.iter_mut().enumerate() {
@@ -79,8 +84,16 @@ fn raw_ui_event(_app: &App, _model: &mut Model, _event: &nannou_conrod::RawWindo
 
 fn key_pressed(app: &App, model: &mut Model, key: Key) {
     match key {
-        Key::E => model.fireplace.settings.ember_settings.sigma = model.fireplace.settings.ember_settings.sigma + 0.1,
-        Key::Q => model.fireplace.settings.ember_settings.sigma = model.fireplace.settings.ember_settings.sigma - 0.1,
+        Key::E => {
+            model.fireplace.settings.ember_settings.sigma =
+                model.fireplace.settings.ember_settings.sigma + 0.1
+        }
+        Key::Q => {
+            model.fireplace.settings.ember_settings.sigma =
+                model.fireplace.settings.ember_settings.sigma - 0.1
+        }
+        Key::S => model.fireplace.off(),
+        Key::W => model.fireplace.start(),
 
         _other_key => {}
     }
